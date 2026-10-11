@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixelify — Turn Any Photo into Pixel Art</title>
+  <meta name="description" content="Convert any image into retro pixel art right in your browser. Pick a grid size, limit the color palette, toggle grid lines and download a crisp PNG.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow glow-1" aria-hidden="true"></div>
+  <div class="bg-glow glow-2" aria-hidden="true"></div>
+  <div class="bg-glow glow-3" aria-hidden="true"></div>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+        <div>
+          <h1>Pixelify</h1>
+          <p>Turn any picture into pixel art</p>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button class="btn btn-ghost" id="upload-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span class="label">Upload image</span>
+        </button>
+        <button class="btn btn-primary" id="download-btn" type="button" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span class="label">Download PNG</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- ===== Settings ===== -->
+      <aside class="panel" aria-label="Pixel art settings">
+        <section class="section">
+          <div class="section-head">
+            <h2 class="section-title">Grid</h2>
+            <button class="btn btn-ghost btn-sm" id="reset-btn" type="button">Reset all</button>
+          </div>
+          <div class="field">
+            <label class="field-label" for="grid-size">
+              Pixels on longest side
+              <span class="value" id="grid-size-value">48</span>
+            </label>
+            <input type="range" id="grid-size" min="8" max="160" step="1" value="48">
+            <div class="chips" id="grid-presets">
+              <button class="chip" type="button" data-size="16">16</button>
+              <button class="chip" type="button" data-size="32">32</button>
+              <button class="chip" type="button" data-size="48">48</button>
+              <button class="chip" type="button" data-size="64">64</button>
+              <button class="chip" type="button" data-size="96">96</button>
+              <button class="chip" type="button" data-size="128">128</button>
+            </div>
+            <p class="hint" id="grid-dims-hint">Fewer pixels = chunkier, more retro.</p>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <h2 class="section-title">Palette</h2>
+          </div>
+          <div class="pal-picker" id="palette-picker" role="group" aria-label="Choose a palette"></div>
+          <p class="hint" id="palette-desc"></p>
+          <div class="field mt" id="color-count-field">
+            <label class="field-label" for="color-count">
+              Number of colors
+              <span class="value" id="color-count-value">16</span>
+            </label>
+            <input type="range" id="color-count" min="2" max="64" step="1" value="16">
+          </div>
+          <div class="sub-label">Colors in use</div>
+          <div class="palette" id="palette" aria-label="Colors in use"></div>
+          <p class="hint">Click a swatch to copy its hex code. Faded swatches aren&rsquo;t used in this image.</p>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <h2 class="section-title">Dithering</h2>
+          </div>
+          <div class="field" id="dither-fields">
+            <div class="chips chips-flush" id="dither-options" role="group" aria-label="Dithering method"></div>
+            <p class="hint" id="dither-desc"></p>
+          </div>
+          <div class="field" id="dither-strength-field">
+            <label class="field-label" for="dither-strength">
+              Strength
+              <span class="value" id="dither-strength-value">85%</span>
+            </label>
+            <input type="range" id="dither-strength" min="0" max="100" step="1" value="85">
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <h2 class="section-title">Adjust</h2>
+          </div>
+          <div class="field">
+            <label class="field-label" for="saturation">
+              Saturation
+              <span class="value" id="saturation-value">120%</span>
+            </label>
+            <input type="range" id="saturation" min="0" max="200" step="1" value="120">
+          </div>
+          <div class="field">
+            <label class="field-label" for="contrast">
+              Contrast
+              <span class="value" id="contrast-value">110%</span>
+            </label>
+            <input type="range" id="contrast" min="50" max="160" step="1" value="110">
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <h2 class="section-title">Grid lines</h2>
+            <label class="switch" title="Show grid lines between pixels">
+              <input type="checkbox" id="show-grid" aria-label="Show grid lines">
+              <span class="track"></span>
+            </label>
+          </div>
+          <div id="grid-line-fields" class="field is-disabled">
+            <div class="color-row">
+              <label for="grid-color">Line color</label>
+              <input type="color" id="grid-color" value="#0b0b14">
+            </div>
+            <label class="field-label" for="grid-opacity">
+              Line opacity
+              <span class="value" id="grid-opacity-value">45%</span>
+            </label>
+            <input type="range" id="grid-opacity" min="5" max="100" step="1" value="45">
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <h2 class="section-title">Export</h2>
+          </div>
+          <div class="field">
+            <label class="field-label" for="export-scale">
+              Size of each pixel
+              <span class="value" id="export-scale-value">16px</span>
+            </label>
+            <input type="range" id="export-scale" min="1" max="40" step="1" value="16">
+            <p class="hint" id="export-size-hint">Output: —</p>
+          </div>
+        </section>
+      </aside>
+
+      <!-- ===== Preview ===== -->
+      <section class="stage" aria-label="Preview">
+        <div class="stage-toolbar">
+          <div class="stats" id="stats">
+            <span><strong id="stat-grid">—</strong>grid</span>
+            <span><strong id="stat-colors">—</strong>colors</span>
+            <span><strong id="stat-time">—</strong>render</span>
+          </div>
+          <div class="stage-tools">
+            <button class="btn btn-ghost btn-sm" id="compare-btn" type="button" disabled title="Hold to see the original (or hold C)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              Hold to compare
+            </button>
+          </div>
+        </div>
+
+        <div class="stage-body" id="stage-body">
+          <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choose an image">
+            <svg class="dropzone-icon" viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">
+              <rect x="1" y="2" width="10" height="8" fill="#2a2450"/>
+              <rect x="1" y="2" width="10" height="1" fill="#8b5cff"/>
+              <rect x="1" y="9" width="10" height="1" fill="#8b5cff"/>
+              <rect x="1" y="2" width="1" height="8" fill="#8b5cff"/>
+              <rect x="10" y="2" width="1" height="8" fill="#8b5cff"/>
+              <rect x="7" y="3" width="2" height="2" fill="#ffc95c"/>
+              <rect x="2" y="7" width="1" height="2" fill="#3ee6ff"/>
+              <rect x="3" y="6" width="1" height="3" fill="#3ee6ff"/>
+              <rect x="4" y="5" width="1" height="4" fill="#3ee6ff"/>
+              <rect x="5" y="6" width="1" height="3" fill="#3ee6ff"/>
+              <rect x="6" y="7" width="1" height="2" fill="#ff5fa2"/>
+              <rect x="7" y="6" width="1" height="3" fill="#ff5fa2"/>
+              <rect x="8" y="7" width="2" height="2" fill="#ff5fa2"/>
+            </svg>
+            <h2>Drop an image to pixelate it</h2>
+            <p>or click to browse &nbsp;·&nbsp; paste with <kbd>Ctrl</kbd> + <kbd>V</kbd></p>
+          </div>
+
+          <div class="canvas-wrap" id="canvas-wrap">
+            <canvas id="pixel-canvas"></canvas>
+            <img id="original-img" alt="Original image">
+            <span class="compare-badge">Original</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="drag-overlay" aria-hidden="true"><div>Drop to pixelate</div></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <input type="file" id="file-input" accept="image/*" hidden>
+
+  <script src="app.js"></script>
+</body>
+</html>
